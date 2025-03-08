@@ -1,0 +1,62 @@
+# ---------------------------------
+#  ENVIRONMENT VARIABLE
+# ---------------------------------
+# Biasanya file .env berisi informasi sensitif
+# (database password, API key, dsb.)
+# Oleh karena itu sebaiknya di-ignore.
+.env
+
+# ---------------------------------
+#  DEPENDENCIES
+# ---------------------------------
+# Folder node_modules berisi paket-paket yang didownload
+# dari registry dan sebaiknya tidak dimasukkan ke repository.
+node_modules/
+
+# ---------------------------------
+#  LOG FILES
+# ---------------------------------
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ---------------------------------
+#  BUILD / BUNDLE OUTPUT
+# ---------------------------------
+# Jika Anda memiliki proses build (misalnya TypeScript -> JavaScript
+# atau bundling client-side), hasil build tidak perlu disertakan.
+build/
+dist/
+out/
+
+# ---------------------------------
+#  TEST COVERAGE
+# ---------------------------------
+# Folder ini sering digunakan untuk laporan cakupan test.
+coverage/
+
+# ---------------------------------
+#  SYSTEM / OS FILES
+# ---------------------------------
+# File atau folder sistem yang tidak relevan untuk source code.
+.DS_Store
+Thumbs.db
+
+# ---------------------------------
+#  MISC (Opsional)
+# ---------------------------------
+# File bawaan editor atau IDE (misal JetBrains IDE, VSCode)
+.vscode/
+.idea/
+*.swp
+
+# Jika menggunakan TypeScript, ignore file metadata
+*.tsbuildinfo
+
+# ---------------------------------
+#  TAILOR TO YOUR NEEDS
+# ---------------------------------
+# Sesuaikan kembali daftar ini sesuai kebutuhan
+# atau struktur proyek Anda.

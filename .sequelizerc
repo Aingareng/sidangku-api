@@ -1,0 +1,12 @@
+const path = require("path");
+
+// Registrasi ts-node & tsconfig-paths agar CLI bisa membaca file .ts
+require("ts-node/register");
+require("tsconfig-paths/register");
+
+module.exports = {
+  config: path.resolve("src", "config", "config.json"),
+  "models-path": path.resolve("src", "models"),
+  "seeders-path": path.resolve("src", "seeders"),
+  "migrations-path": path.resolve("src", "migrations"),
+};
