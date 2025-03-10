@@ -15,6 +15,7 @@ export interface IUserData {
 
 interface UserQueryParams {
   search?: string;
+  id?: number;
 }
 
 export interface IUserController {
