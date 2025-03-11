@@ -13,7 +13,7 @@ const authRoute = () => {
         email: string;
         password: string;
       };
-      // bcrypt.hash("1234567", 10).then((hash) => console.log(hash));
+      // bcrypt.hash("password123", 10).then((hash) => console.log(hash));
       const existingUser = await UserModel.findOne({ where: { email: email } });
       if (!existingUser) {
         res
@@ -40,9 +40,11 @@ const authRoute = () => {
         { expiresIn: "1h" } // Token berlaku 1 jam
       );
 
-      res
-        .status(200)
-        .json({ status: 200, message: "success", data: { token: token } });
+      res.status(200).json({
+        status: 200,
+        message: "success",
+        data: { token: token, user_role: existingUser?.role_id },
+      });
     } catch (error) {
       res
         .status(500)

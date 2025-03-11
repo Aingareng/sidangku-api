@@ -2,6 +2,8 @@ import { Router, Request, Response } from "express";
 import UserController from "../../controllers/userController";
 import { IUserData } from "../../interface/user";
 import { validateCreateUser } from "../middleware/user";
+import authMiddleware from "../middleware/authMiddleware";
+import { NextFunction } from "express";
 
 const userRoute = () => {
   const router: Router = Router();
@@ -17,7 +19,7 @@ const userRoute = () => {
     }
   });
 
-  router.get("/", async (req: Request, res: Response) => {
+  router.get("/", authMiddleware, async (req: Request, res: Response) => {
     try {
       const result = await controller.get({ ...req.query });
 
