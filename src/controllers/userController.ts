@@ -1,10 +1,11 @@
 import { IApiResponse, QueryParams } from "../interface/apiResponse";
 import { SequelizeValidationError } from "../interface/sequelizeValidationError";
 import { IUserController, IUserData, UserQueryParams } from "../interface/user";
-import { UserModel } from "../models";
+import { CasePartiesModel, UserModel } from "../models";
 import { Op } from "sequelize";
+import CasePartiesService from "../services/case-parties/Create";
 
-class UserController implements IUserController {
+class userController implements IUserController {
   async create(payload: IUserData): Promise<IApiResponse> {
     try {
       const data: IUserData = {
@@ -23,15 +24,21 @@ class UserController implements IUserController {
         };
       }
 
-      const result = await UserModel.create({ ...data });
+      const user = await UserModel.create({ ...data });
 
-      if (!result) {
+      if (!user) {
         return {
           status: 400,
           message: "Failed to add user",
           data: null,
         };
       }
+
+      const casePartiesResult = await CasePartiesService.create({
+        user_id: user.id,
+        role_id: user.role_id,
+      });
+      // await CasePartiesModel.create()
 
       return {
         status: 201,
@@ -64,8 +71,8 @@ class UserController implements IUserController {
           { email: { [Op.like]: `%${search}%` } },
           { phone: { [Op.like]: `%${search}%` } },
         ];
-        result = await UserModel.findAll({ where: whereClause });
       }
+      result = await UserModel.findAll({ where: whereClause });
 
       return {
         status: 200,
@@ -82,4 +89,4 @@ class UserController implements IUserController {
   }
 }
 
-export default UserController;
+export default userController;

@@ -1,13 +1,14 @@
 import { Router, Request, Response } from "express";
-import UserController from "../../controllers/userController";
+
 import { IUserData } from "../../interface/user";
 import { validateCreateUser } from "../middleware/user";
 import authMiddleware from "../middleware/authMiddleware";
 import { NextFunction } from "express";
+import userController from "../../controllers/userController";
 
 const userRoute = () => {
   const router: Router = Router();
-  const controller: UserController = new UserController();
+  const controller: userController = new userController();
 
   router.post("/", validateCreateUser, async (req: Request, res: Response) => {
     try {
