@@ -34,6 +34,7 @@ class CreateSchedulesService {
         data: null,
       };
     } catch (error) {
+      transaction.rollback();
       return {
         status: 500,
         message: error,
