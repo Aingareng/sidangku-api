@@ -4,9 +4,10 @@ import {
   ISchedulesData,
   SehceduleQueryParams,
 } from "../interface/schedules";
+import { ISchedulesPayload } from "../interface/sequelizeValidationError";
 
 class SchedulesController implements ISchedulesController {
-  async create(payload: ISchedulesData): Promise<IApiResponse> {
+  async create(payload: ISchedulesPayload): Promise<IApiResponse> {
     try {
       return {
         status: 100,

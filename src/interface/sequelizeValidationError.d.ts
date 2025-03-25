@@ -15,6 +15,16 @@ interface ValidationErrorDetail {
   validatorArgs: any[];
 }
 
+interface ISchedulesPayload {
+  case_number: string;
+  panitera_name?: string;
+  panitera_pengganti_name?: string;
+  agenda: string[];
+  judges: string[];
+  plaintiff: string[];
+  defendant: string[];
+}
+
 interface InstanceData {
   id: number | null;
   role_id: string;

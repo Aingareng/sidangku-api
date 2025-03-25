@@ -8,7 +8,7 @@ export type ICaseSatatus =
   | "closed";
 
 export interface CasesPayload {
-  case_number: number;
+  case_number: string;
   case_detail?: string;
   status?: ICaseSatatus;
 }

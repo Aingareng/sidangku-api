@@ -1,4 +1,5 @@
 import { IApiResponse, QueryParams } from "./apiResponse";
+import { ISchedulesPayload } from "./sequelizeValidationError";
 import { IUserData } from "./user";
 
 export interface ISchedulesData {
@@ -17,5 +18,5 @@ interface SehceduleQueryParams {
 
 export interface ISchedulesController {
   get(params: QueryParams<SehceduleQueryParams>): Promise<IApiResponse>;
-  create(payload: ISchedulesData): Promise<IApiResponse>;
+  create(payload: ISchedulesPayload): Promise<IApiResponse>;
 }

@@ -17,6 +17,12 @@ interface UserQueryParams {
   search?: string;
   id?: number;
 }
+export interface IUserPayload {
+  role_id: number;
+  name: string;
+  email: string;
+  phone: string;
+}
 
 export interface IUserController {
   create(payload: IUserData): Promise<IApiResponse>;
