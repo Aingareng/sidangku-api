@@ -20,7 +20,7 @@ const userRoute = () => {
     }
   });
 
-  router.get("/", authMiddleware, async (req: Request, res: Response) => {
+  router.get("/", async (req: Request, res: Response) => {
     try {
       const result = await controller.get({ ...req.query });
 

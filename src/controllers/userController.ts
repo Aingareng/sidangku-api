@@ -2,7 +2,7 @@ import { IApiResponse, QueryParams } from "../interface/apiResponse";
 import { SequelizeValidationError } from "../interface/sequelizeValidationError";
 import { IUserController, IUserData, UserQueryParams } from "../interface/user";
 import { CasePartiesModel, UserModel } from "../models";
-import { Op } from "sequelize";
+import { Op, QueryTypes } from "sequelize";
 import CasePartiesService from "../services/case-parties/Create";
 
 class userController implements IUserController {
@@ -56,28 +56,39 @@ class userController implements IUserController {
 
   async get(params: QueryParams<UserQueryParams>): Promise<IApiResponse> {
     try {
-      const whereClause: any = {};
-      const { search, id } = params;
-      let result;
-      if (!search && id) {
-        whereClause.id = id;
+      const { search } = params;
 
-        result = await UserModel.findOne({ where: whereClause });
-      }
+      const whereClause = search
+        ? `
+            WHERE u.name  LIKE :searchTerm
+              OR u.email LIKE :searchTerm
+              OR u.phone LIKE :searchTerm
+          `
+        : "";
 
-      if (search) {
-        whereClause[Op.or] = [
-          { name: { [Op.like]: `%${search}%` } },
-          { email: { [Op.like]: `%${search}%` } },
-          { phone: { [Op.like]: `%${search}%` } },
-        ];
-      }
-      result = await UserModel.findAll({ where: whereClause });
+      const baseQuery = `
+        SELECT
+          u.id,
+          u.name,
+          u.email,
+          u.phone,
+          r.name AS role_name
+        FROM users u
+        JOIN roles r ON u.role_id = r.id
+        ${whereClause}
+      `;
+
+      const results = await UserModel.sequelize?.query(baseQuery, {
+        replacements: search ? { searchTerm: `%${search}%` } : {},
+        type: QueryTypes.SELECT,
+      });
 
       return {
         status: 200,
         message: "Success",
-        data: result,
+        data: (results as IUserData[])?.filter(
+          (result: IUserData) => result.name !== "Admin"
+        ),
       };
     } catch (error) {
       return {
