@@ -16,6 +16,7 @@ export interface IUserData {
 interface UserQueryParams {
   search?: string;
   id?: number;
+  role_id?: string;
 }
 export interface IUserPayload {
   role_id: number;

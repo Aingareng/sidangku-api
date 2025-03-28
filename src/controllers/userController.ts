@@ -4,6 +4,7 @@ import { IUserController, IUserData, UserQueryParams } from "../interface/user";
 import { CasePartiesModel, UserModel } from "../models";
 import { Op, QueryTypes } from "sequelize";
 import CasePartiesService from "../services/case-parties/Create";
+import { table } from "console";
 
 class userController implements IUserController {
   async create(payload: IUserData): Promise<IApiResponse> {
@@ -56,15 +57,31 @@ class userController implements IUserController {
 
   async get(params: QueryParams<UserQueryParams>): Promise<IApiResponse> {
     try {
-      const { search } = params;
+      const { search, role_id } = params;
 
-      const whereClause = search
-        ? `
-            WHERE u.name  LIKE :searchTerm
-              OR u.email LIKE :searchTerm
-              OR u.phone LIKE :searchTerm
-          `
-        : "";
+      let whereConditions: string[] = [];
+      let replacements: any = {};
+
+      // Kondisi search
+      if (search) {
+        whereConditions.push(`
+          (u.name LIKE :searchTerm
+          OR u.email LIKE :searchTerm
+          OR u.phone LIKE :searchTerm)
+        `);
+        replacements.searchTerm = `%${search}%`;
+      }
+
+      // Kondisi role_id
+      if (role_id) {
+        whereConditions.push("u.role_id = :roleId");
+        replacements.roleId = role_id;
+      }
+
+      const whereClause =
+        whereConditions.length > 0
+          ? `WHERE ${whereConditions.join(" AND ")}`
+          : "";
 
       const baseQuery = `
         SELECT
@@ -79,7 +96,7 @@ class userController implements IUserController {
       `;
 
       const results = await UserModel.sequelize?.query(baseQuery, {
-        replacements: search ? { searchTerm: `%${search}%` } : {},
+        replacements,
         type: QueryTypes.SELECT,
       });
 
