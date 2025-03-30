@@ -19,10 +19,12 @@ interface ISchedulesPayload {
   case_number: string;
   panitera_name?: string;
   panitera_pengganti_name?: string;
-  agenda: string[];
+  case_detail: string[];
   judges: string[];
   plaintiff: string[];
   defendant: string[];
+  location?: number;
+  queue_number?: number;
 }
 
 interface InstanceData {

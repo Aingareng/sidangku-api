@@ -3,12 +3,17 @@ import { ISchedulesPayload } from "./sequelizeValidationError";
 import { IUserData } from "./user";
 
 export interface ISchedulesData {
-  case_id: number;
-  judge_id: number;
-  panitera_id: number;
-  panitera_pengganti_id: number;
+  id: number;
+  scheduled_date: string;
+  scheduled_time: string;
+  case_number: string;
+  plaintiff: string;
   queue_number?: number;
   location?: number;
+  defendant: string;
+  judge: string;
+  panitera: string;
+  agenda: string;
 }
 
 interface SehceduleQueryParams {
