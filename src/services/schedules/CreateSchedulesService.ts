@@ -1,40 +1,77 @@
 import { ISchedulesPayload } from "../../interface/sequelizeValidationError";
-import { sequelize } from "../../models";
+import { ScheduleModel, sequelize } from "../../models";
+import CasePartiesService from "../case-parties/CasePartiesService";
 import CreateCasesService from "../cases/CreateCasesService";
+import CreateUserService from "../users/CreateUsersService";
+import FindUserService from "../users/FindUserService";
 
 class CreateSchedulesService {
   static async create(payload: ISchedulesPayload) {
     const transaction = await sequelize.transaction();
     try {
-      const {
-        agenda,
-        defendant,
-        judges,
-        plaintiff,
-        case_number,
-        panitera_name,
-        panitera_pengganti_name,
-      } = payload;
-
-      const caseService = await CreateCasesService.create({ case_number });
+      const caseService = await CreateCasesService.create(
+        {
+          case_number: payload.case_number,
+        },
+        transaction
+      );
 
       if (caseService?.status !== 201) {
-        await transaction.rollback();
         return {
           status: 400,
-          message: caseService?.message,
+          message: caseService.message || "Create case failed",
           data: null,
         };
       }
 
-      transaction.commit();
+      const caseId = caseService.data?.id;
+
+      const processParties = async (userIds: number[], roleType: string) => {
+        for (const userId of userIds) {
+          const user = await FindUserService.findByPk(userId, transaction);
+
+          if (user.status !== 200)
+            return {
+              status: 400,
+              message: user.message || `${roleType} not found`,
+              data: null,
+            };
+
+          return await CasePartiesService.create(
+            {
+              case_id: caseId,
+              user_id: userId,
+              role_id: user.data?.role_id,
+            },
+            transaction
+          );
+        }
+      };
+
+      await processParties(payload.judges, "Judge");
+      await processParties(payload.plaintiff, "Plaintiff");
+      await processParties(payload.defendant, "Defendant");
+
+      const schedule = await ScheduleModel.create(
+        {
+          case_id: caseId,
+          status: "scheduled",
+          scheduled_date: new Date(),
+          scheduled_time: new Date(),
+        },
+        { transaction }
+      );
+
+      await transaction.commit();
+
       return {
         status: 201,
         message: "created",
-        data: null,
+        data: schedule,
       };
     } catch (error) {
-      transaction.rollback();
+      console.error("CreateSchedulesService Error:", error);
+      await transaction.rollback();
       return {
         status: 500,
         message: error,

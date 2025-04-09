@@ -63,6 +63,6 @@ CasePartiesModel.init(
   {
     sequelize,
     modelName: "CasePartiesModel",
-    tableName: "cases",
+    tableName: "case_parties",
   }
 );

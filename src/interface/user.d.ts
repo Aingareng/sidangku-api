@@ -19,6 +19,7 @@ interface UserQueryParams {
   role_id?: string;
 }
 export interface IUserPayload {
+  id?: number;
   role_id: number;
   name: string;
   email: string;

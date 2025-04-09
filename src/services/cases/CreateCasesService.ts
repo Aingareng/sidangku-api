@@ -1,8 +1,9 @@
+import { Transaction } from "sequelize";
 import { CasesPayload } from "../../interface/case";
-import { CaseModel } from "../../models";
+import { CaseModel, ScheduleModel } from "../../models";
 
 class CreateCasesService {
-  static async create(payload: CasesPayload) {
+  static async create(payload: CasesPayload, transaction: Transaction) {
     try {
       const validateResult = (await this.validation(payload)) as {
         error: string;
@@ -22,12 +23,20 @@ class CreateCasesService {
         createAt: new Date(),
       };
 
-      const result = await CaseModel.create(data);
+      const CreateCaseResult = await CaseModel.create(data, { transaction });
+
+      if (!CreateCaseResult) {
+        return {
+          status: 400,
+          message: "failed to create case",
+          data: null,
+        };
+      }
 
       return {
         status: 201,
         message: "created",
-        data: result,
+        data: CreateCaseResult,
       };
     } catch (error) {
       return {

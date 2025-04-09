@@ -20,9 +20,9 @@ interface ISchedulesPayload {
   panitera_name?: string;
   panitera_pengganti_name?: string;
   case_detail: string[];
-  judges: string[];
-  plaintiff: string[];
-  defendant: string[];
+  judges: number[];
+  plaintiff: number[];
+  defendant: number[];
   location?: number;
   queue_number?: number;
 }

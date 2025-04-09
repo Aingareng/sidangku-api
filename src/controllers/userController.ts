@@ -3,8 +3,8 @@ import { SequelizeValidationError } from "../interface/sequelizeValidationError"
 import { IUserController, IUserData, UserQueryParams } from "../interface/user";
 import { CasePartiesModel, UserModel } from "../models";
 import { Op, QueryTypes } from "sequelize";
-import CasePartiesService from "../services/case-parties/Create";
-import { table } from "console";
+
+import CasePartiesService from "../services/case-parties/CasePartiesService";
 
 class userController implements IUserController {
   async create(payload: IUserData): Promise<IApiResponse> {
@@ -104,7 +104,7 @@ class userController implements IUserController {
         status: 200,
         message: "Success",
         data: (results as IUserData[])?.filter(
-          (result: IUserData) => result.name !== "Admin"
+          (result: IUserData) => result.name.toLowerCase() !== "admin"
         ),
       };
     } catch (error) {

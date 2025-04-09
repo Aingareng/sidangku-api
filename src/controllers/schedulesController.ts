@@ -7,6 +7,8 @@ import {
 } from "../interface/schedules";
 import { ISchedulesPayload } from "../interface/sequelizeValidationError";
 import { ScheduleModel } from "../models";
+import CreateSchedulesService from "../services/schedules/CreateSchedulesService";
+import { HttpStatusCode } from "../types/httpCode";
 
 class SchedulesController implements ISchedulesController {
   async create(payload: ISchedulesPayload): Promise<IApiResponse> {
@@ -18,18 +20,17 @@ class SchedulesController implements ISchedulesController {
         scheduled_time: new Date().getTime(),
         createdAt: new Date(),
       };
-
-      const result = await ScheduleModel.create(data);
+      const result = await CreateSchedulesService.create(data);
 
       return {
-        status: 100,
-        message: "created",
-        data: result,
+        status: result.status as HttpStatusCode,
+        message: result.message as string,
+        data: result.data,
       };
     } catch (error) {
       return {
         status: 500,
-        message: "Internal server error",
+        message: String(error),
         data: null,
       };
     }
@@ -67,10 +68,10 @@ class SchedulesController implements ISchedulesController {
         GROUP_CONCAT(DISTINCT CASE WHEN cp.role_id = 1 THEN u.name END) as hakim,
         MAX(CASE WHEN cp.role_id = 2 THEN u.name END) as panitera
       FROM schedules s
-      JOIN cases c ON s.case_id = c.id
-      JOIN case_parties cp ON cp.case_id = c.id
-      JOIN users u ON cp.user_id = u.id
-      JOIN roles r ON cp.role_id = r.id
+      JOIN case_parties cp ON cp.case_id = s.cases_parties_id
+      JOIN cases c ON c.id = cp.case_id
+      JOIN users u ON u.id = cp.user_id 
+      JOIN roles r ON r.id = cp.role_id
       ${whereClause}
       GROUP BY 
         s.id, 

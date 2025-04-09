@@ -4,10 +4,7 @@ import { sequelize } from "../config/database";
 export class ScheduleModel extends Model {
   public id!: number;
   public case_id!: number;
-  public judge_id!: number;
   public status!: "scheduled" | "pending" | "finished";
-  public panitera_id!: number;
-  public panitera_pengganti_id!: number;
   public scheduled_date!: Date;
   public scheduled_time!: Date;
   public queue_number!: number;
@@ -30,35 +27,6 @@ ScheduleModel.init(
     case_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: "cases",
-        key: "id",
-      },
-    },
-    judge_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: "users",
-        key: "id",
-      },
-    },
-    panitera_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: "users",
-        key: "id",
-      },
-    },
-
-    panitera_pengganti_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: "users",
-        key: "id",
-      },
     },
     scheduled_date: {
       type: DataTypes.DATE,
