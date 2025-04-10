@@ -1,11 +1,6 @@
 import { Transaction } from "sequelize";
 import { CasePartiesModel } from "../../models";
-
-export interface ICasePartiesService {
-  case_id?: number | number[];
-  user_id?: number | number[];
-  role_id?: number | number[];
-}
+import { ICasePartiesService } from "../../interface/caseParties";
 
 class CasePartiesService {
   static async create(payload: ICasePartiesService, transaction?: Transaction) {

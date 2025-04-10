@@ -24,6 +24,25 @@ const schedulesRoute = () => {
       res.status(500).json(error as Record<string, any>);
     }
   });
+  router.delete("/:id", async (req: Request, res: Response) => {
+    try {
+      const result = await controller.delete(req.params.id as string);
+      res.status(result.status as number).json(result);
+    } catch (error) {
+      res.status(500).json(error as Record<string, any>);
+    }
+  });
+  router.put("/:id", async (req: Request, res: Response) => {
+    try {
+      const result = await controller.update(
+        req.params.id as string,
+        req.body as ISchedulesPayload
+      );
+      res.status(result.status as number).json(result);
+    } catch (error) {
+      res.status(500).json(error as Record<string, any>);
+    }
+  });
 
   return router;
 };

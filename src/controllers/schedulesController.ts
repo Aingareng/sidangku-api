@@ -9,6 +9,8 @@ import { ISchedulesPayload } from "../interface/sequelizeValidationError";
 import { ScheduleModel } from "../models";
 import CreateSchedulesService from "../services/schedules/CreateSchedulesService";
 import { HttpStatusCode } from "../types/httpCode";
+import DestroySchedulesService from "../services/schedules/DestroySchedulesService";
+import UpdateSchedulesService from "../services/schedules/UpdateSchedulesService";
 
 class SchedulesController implements ISchedulesController {
   async create(payload: ISchedulesPayload): Promise<IApiResponse> {
@@ -117,6 +119,56 @@ class SchedulesController implements ISchedulesController {
       return {
         status: 500,
         message: "Internal server error",
+        data: null,
+      };
+    }
+  }
+  async delete(id: string): Promise<IApiResponse> {
+    try {
+      const result = await DestroySchedulesService.call(id);
+
+      if (result.status !== 201) {
+        return {
+          status: result.status as HttpStatusCode,
+          message: result.message,
+          data: null,
+        };
+      }
+
+      return {
+        status: 200,
+        message: "Schedule deleted successfully",
+        data: null,
+      };
+    } catch (error) {
+      return {
+        status: 500,
+        message: String(error),
+        data: null,
+      };
+    }
+  }
+  async update(id: string, payload: ISchedulesPayload): Promise<IApiResponse> {
+    try {
+      const result = await UpdateSchedulesService.call(id, payload);
+
+      if (result.status !== 201) {
+        return {
+          status: result.status as HttpStatusCode,
+          message: result.message,
+          data: null,
+        };
+      }
+
+      return {
+        status: 200,
+        message: "Schedule updated successfully",
+        data: null,
+      };
+    } catch (error) {
+      return {
+        status: 500,
+        message: String(error),
         data: null,
       };
     }

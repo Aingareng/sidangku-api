@@ -7,11 +7,6 @@ import FindUserService from "../users/FindUserService";
 
 class CreateSchedulesService {
   static async create(payload: ISchedulesPayload) {
-    // return {
-    //   status: 200,
-    //   message: "",
-    //   data: payload,
-    // };
     const transaction = await sequelize.transaction();
     try {
       const caseService = await CreateCasesService.create(

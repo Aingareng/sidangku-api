@@ -24,4 +24,6 @@ interface SehceduleQueryParams {
 export interface ISchedulesController {
   get(params: QueryParams<SehceduleQueryParams>): Promise<IApiResponse>;
   create(payload: ISchedulesPayload): Promise<IApiResponse>;
+  update(id: string, payload: ISchedulesPayload): Promise<IApiResponse>;
+  delete(id: string): Promise<IApiResponse>;
 }
