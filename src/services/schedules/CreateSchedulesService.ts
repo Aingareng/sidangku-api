@@ -7,11 +7,17 @@ import FindUserService from "../users/FindUserService";
 
 class CreateSchedulesService {
   static async create(payload: ISchedulesPayload) {
+    // return {
+    //   status: 200,
+    //   message: "",
+    //   data: payload,
+    // };
     const transaction = await sequelize.transaction();
     try {
       const caseService = await CreateCasesService.create(
         {
           case_number: payload.case_number,
+          case_detail: String(payload.case_detail),
         },
         transaction
       );
@@ -51,6 +57,7 @@ class CreateSchedulesService {
       await processParties(payload.judges, "Judge");
       await processParties(payload.plaintiff, "Plaintiff");
       await processParties(payload.defendant, "Defendant");
+      await processParties([payload.registrar], "Defendant");
 
       const schedule = await ScheduleModel.create(
         {

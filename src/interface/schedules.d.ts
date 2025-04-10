@@ -7,13 +7,13 @@ export interface ISchedulesData {
   scheduled_date: string;
   scheduled_time: string;
   case_number: string;
-  plaintiff: string;
+  plaintiff: string[];
   queue_number?: number;
   location?: number;
-  defendant: string;
-  judge: string;
+  defendant: string[];
+  judge: string[];
   panitera: string;
-  agenda: string;
+  agenda: string[];
 }
 
 interface SehceduleQueryParams {
