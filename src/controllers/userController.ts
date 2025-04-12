@@ -5,6 +5,7 @@ import { CasePartiesModel, UserModel } from "../models";
 import { Op, QueryTypes } from "sequelize";
 
 import CasePartiesService from "../services/case-parties/CasePartiesService";
+import DestroyUsersSerive from "../services/users/DestroyUsersService";
 
 class userController implements IUserController {
   async create(payload: IUserData): Promise<IApiResponse> {
@@ -39,7 +40,6 @@ class userController implements IUserController {
         user_id: user.id,
         role_id: user.role_id,
       });
-      // await CasePartiesModel.create()
 
       return {
         status: 201,
@@ -112,6 +112,24 @@ class userController implements IUserController {
         status: 500,
         message: "Internal server error",
         data: error as SequelizeValidationError,
+      };
+    }
+  }
+
+  async delete(id: number) {
+    try {
+      const destroyUserService = await DestroyUsersSerive.call(id);
+
+      return {
+        status: destroyUserService.status,
+        message: destroyUserService.message,
+        data: destroyUserService.data,
+      };
+    } catch (error) {
+      return {
+        status: 500,
+        message: "Internal server error",
+        data: null,
       };
     }
   }

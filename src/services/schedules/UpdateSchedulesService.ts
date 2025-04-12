@@ -1,14 +1,7 @@
 import { where } from "sequelize";
 import { ISchedulesPayload } from "../../interface/sequelizeValidationError";
-import {
-  CaseModel,
-  CasePartiesModel,
-  ScheduleModel,
-  sequelize,
-} from "../../models";
+import { CaseModel, ScheduleModel, sequelize } from "../../models";
 import { CasesPayload } from "../../interface/case";
-import { ICasePartiesTable } from "../../interface/caseParties";
-import CasePartiesService from "../case-parties/CasePartiesService";
 import FindUserService from "../users/FindUserService";
 import UpdateCasepartiesService from "../case-parties/UpdateCasepartiesService";
 

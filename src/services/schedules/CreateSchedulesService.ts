@@ -38,7 +38,7 @@ class CreateSchedulesService {
               data: null,
             };
 
-          return await CasePartiesService.create(
+          await CasePartiesService.create(
             {
               case_id: caseId,
               user_id: userId,

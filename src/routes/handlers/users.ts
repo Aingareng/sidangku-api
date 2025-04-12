@@ -30,6 +30,15 @@ const userRoute = () => {
     }
   });
 
+  router.delete("/:id", async (req: Request, res: Response) => {
+    try {
+      const result = await controller.delete(+req.params.id);
+      res.status(result?.status as number).json(result);
+    } catch (error) {
+      res.status(500).json(error as Record<string, any>);
+    }
+  });
+
   return router;
 };
 

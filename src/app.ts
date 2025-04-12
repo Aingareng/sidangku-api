@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
-import userRoute from "./routes/handlers/users.api";
+import userRoute from "./routes/handlers/users";
 import router from "./routes/router";
 import authRoute from "./routes/handlers/auth";
 import schedulesRoute from "./routes/handlers/schedules";
