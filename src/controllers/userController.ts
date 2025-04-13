@@ -6,6 +6,8 @@ import { Op, QueryTypes } from "sequelize";
 
 import CasePartiesService from "../services/case-parties/CasePartiesService";
 import DestroyUsersSerive from "../services/users/DestroyUsersService";
+import { HttpStatusCode } from "../types/httpCode";
+import UpdateUsersService from "../services/users/UpdateUsersService";
 
 class userController implements IUserController {
   async create(payload: IUserData): Promise<IApiResponse> {
@@ -36,7 +38,7 @@ class userController implements IUserController {
         };
       }
 
-      const casePartiesResult = await CasePartiesService.create({
+      await CasePartiesService.create({
         user_id: user.id,
         role_id: user.role_id,
       });
@@ -89,10 +91,19 @@ class userController implements IUserController {
           u.name,
           u.email,
           u.phone,
-          r.name AS role_name
+          r.name AS role_name,
+          r.id AS role_id,
+
+          CASE
+            WHEN cp.user_id IS NOT NULL THEN 'active'
+            ELSE 'inactive'
+          END AS user_status
+          
         FROM users u
         JOIN roles r ON u.role_id = r.id
+        LEFT JOIN case_parties cp ON u.id = cp.user_id
         ${whereClause}
+        GROUP BY u.id
       `;
 
       const results = await UserModel.sequelize?.query(baseQuery, {
@@ -116,12 +127,12 @@ class userController implements IUserController {
     }
   }
 
-  async delete(id: number) {
+  async delete(id: number): Promise<IApiResponse> {
     try {
       const destroyUserService = await DestroyUsersSerive.call(id);
 
       return {
-        status: destroyUserService.status,
+        status: destroyUserService.status as HttpStatusCode,
         message: destroyUserService.message,
         data: destroyUserService.data,
       };
@@ -129,6 +140,22 @@ class userController implements IUserController {
       return {
         status: 500,
         message: "Internal server error",
+        data: null,
+      };
+    }
+  }
+  async update(id: number, payload: IUserData): Promise<IApiResponse> {
+    try {
+      const service = await UpdateUsersService.call(id, payload);
+      return {
+        status: service?.status as HttpStatusCode,
+        message: service?.message,
+        data: service?.data,
+      };
+    } catch (error) {
+      return {
+        status: 500,
+        message: String(error),
         data: null,
       };
     }

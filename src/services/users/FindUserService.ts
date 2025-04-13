@@ -19,26 +19,6 @@ class FindUserService {
       };
     }
   }
-
-  // static async findAll(payload: IUserPayload) {
-  //   try {
-  //     const foundJudges = await UserModel.findAll({
-  //       where: {
-  //         id: {
-  //           [Op.in]: payload.role_id,
-  //         },
-  //       },
-  //     });
-
-  //          if (foundJudges.length !== payload.judges.length) {
-  //            return {
-  //              status: 404,
-  //              message: "Some judge(s) not found",
-  //              data: null,
-  //            };
-  //          }
-  //   } catch (error) {}
-  // }
 }
 
 export default FindUserService;

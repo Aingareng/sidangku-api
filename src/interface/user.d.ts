@@ -29,4 +29,6 @@ export interface IUserPayload {
 export interface IUserController {
   create(payload: IUserData): Promise<IApiResponse>;
   get(params: QueryParams<UserQueryParams>): Promise<IApiResponse>;
+  delete(id: number): Promise<IApiResponse>;
+  update(id: number, payload: IUserData): Promise<IApiResponse>;
 }
