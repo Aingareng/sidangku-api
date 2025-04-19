@@ -19,6 +19,23 @@ class FindUserService {
       };
     }
   }
+
+  static async findAll(ids: number[]) {
+    try {
+      const result = await UserModel.findAll({ where: { id: ids } });
+      return {
+        status: 200,
+        message: "found",
+        data: result,
+      };
+    } catch (error) {
+      return {
+        status: 500,
+        message: String(error),
+        data: null,
+      };
+    }
+  }
 }
 
 export default FindUserService;

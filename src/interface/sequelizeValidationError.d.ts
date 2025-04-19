@@ -20,10 +20,12 @@ interface ISchedulesPayload {
   registrar: number;
   case_detail: string[];
   judges: number[];
-  plaintiff: number[];
-  defendant: number[];
+  plaintiffs?: number[];
+  defendants?: number[];
+  preacheds?: number[];
   location?: number;
   queue_number?: number;
+  case_type: "perdata" | "pidana";
 }
 
 interface InstanceData {

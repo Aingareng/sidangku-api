@@ -2,6 +2,8 @@ import { Router, Request, Response } from "express";
 import authMiddleware from "../middleware/authMiddleware";
 import SchedulesController from "../../controllers/schedulesController";
 import { ISchedulesPayload } from "../../interface/sequelizeValidationError";
+import SendNoticationService from "../../services/whats-app/SendNoticationService";
+import { HttpStatusCode } from "../../types/httpCode";
 
 const schedulesRoute = () => {
   const router: Router = Router();
@@ -39,6 +41,15 @@ const schedulesRoute = () => {
         req.body as ISchedulesPayload
       );
       res.status(result.status as number).json(result);
+    } catch (error) {
+      res.status(500).json(error as Record<string, any>);
+    }
+  });
+
+  router.post("/send-notification", async (req: Request, res: Response) => {
+    try {
+      const result = await SendNoticationService();
+      res.status(result.status as HttpStatusCode).json(result);
     } catch (error) {
       res.status(500).json(error as Record<string, any>);
     }

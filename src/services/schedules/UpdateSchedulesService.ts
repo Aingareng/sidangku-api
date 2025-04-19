@@ -4,9 +4,15 @@ import { CaseModel, ScheduleModel, sequelize } from "../../models";
 import { CasesPayload } from "../../interface/case";
 import FindUserService from "../users/FindUserService";
 import UpdateCasepartiesService from "../case-parties/UpdateCasepartiesService";
+import SendNoticationService from "../whats-app/SendNoticationService";
+import {
+  formatJamIndonesia,
+  formatTanggalIndonesia,
+} from "../../utils/formatDate";
 
 class UpdateSchedulesService {
   static async call(id: string, data: ISchedulesPayload) {
+    console.log("🚀 ~ UpdateSchedulesService ~ call ~ data:", data);
     const transaction = await sequelize.transaction();
 
     try {
@@ -47,8 +53,10 @@ class UpdateSchedulesService {
       };
 
       await processParties(data.judges, "Judge");
-      await processParties(data.plaintiff, "Plaintiff");
-      await processParties([data.registrar], "Defendant");
+      await processParties(data.plaintiffs || [], "Plaintiff");
+      await processParties(data.defendants || [], "Defendant");
+      await processParties(data.preacheds || [], "preacheds");
+      await processParties([data.registrar], "registrar");
 
       const scheduleUpdateResult = await ScheduleModel.update(data, {
         where: {
@@ -58,7 +66,8 @@ class UpdateSchedulesService {
       });
 
       // update table cases
-      const caseDataUpdate: CasesPayload = {
+      const caseDataUpdate = {
+        ...data,
         case_number: data.case_number,
         case_detail: String(data.case_detail),
       };
@@ -82,7 +91,72 @@ class UpdateSchedulesService {
         };
       }
 
+      const judges = await FindUserService.findAll(data.judges);
+      const plaintiffs = await FindUserService.findAll(data.plaintiffs || []);
+      const defendants = await FindUserService.findAll(data.defendants || []);
+      const clercks = await FindUserService.findAll([data.registrar]);
+      const preacheds = await FindUserService.findAll(data.preacheds || []);
+
       await transaction.commit();
+
+      console.log(schedule);
+
+      await SendNoticationService(
+        `
+📢 *Jadwal Sidang Baru*
+
+🆔 *Perkara*: ${data.case_number}
+👨‍⚖️ *Hakim*: 
+${judges.data
+  ?.map(
+    (judge, idx) =>
+      `${idx + 1}. ${judge.name} (📞 https://wa.me/${judge.phone})`
+  )
+  .join("\n")}
+🧑‍💼 *Panitera*: 
+${clercks.data
+  ?.map(
+    (clerck, idx) =>
+      `${idx + 1}. ${clerck.name} (📞 https://wa.me/${clerck.phone})`
+  )
+  .join("\n")}
+
+${
+  data.case_type === "perdata"
+    ? `
+👥 *Penggugat*: 
+${plaintiffs.data
+  ?.map((p, idx) => `${idx + 1}. ${p.name} (📞 https://wa.me/${p.phone})`)
+  .join("\n")}
+
+👥 *Tergugat*: 
+${defendants.data
+  ?.map((d, idx) => `${idx + 1}. ${d.name} (📞 https://wa.me/${d.phone})`)
+  .join("\n")}
+    `
+    : `
+👥 *Terdakwa*:
+${preacheds.data?.map((p, idx) => `${idx + 1}. ${p.name} `).join("\n")}
+    `
+}
+
+📅 *Tanggal*: ${formatTanggalIndonesia(schedule.createdAt.toString())}
+⏰ *Jam*: ${schedule.scheduled_time}
+🏛 *Ruang Sidang*: ${data.location}
+🔢 *Nomor Antrian*: ${data.queue_number}
+
+📝 *Tindakan:*
+Mohon hadir tepat waktu sesuai jadwal yang telah ditentukan.
+
+🔗 *Dashboard*: 
+👉 http://192.168.1.5/
+
+_Terima kasih atas kerjasama Bapak/Ibu._
+
+Salam hormat,  
+*PTSP PN Limboto*
+  `
+      );
 
       return {
         status: 201,

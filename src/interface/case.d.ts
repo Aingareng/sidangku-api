@@ -10,6 +10,7 @@ export type ICaseSatatus =
 export interface CasesPayload {
   case_number: string;
   case_detail?: string;
+  case_type: "perdata" | "pidana";
   status?: ICaseSatatus;
 }
 

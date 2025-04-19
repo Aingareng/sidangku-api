@@ -16,4 +16,5 @@ app.use("/api", router("/auth", authRoute()));
 app.use("/api", router("/user", userRoute()));
 app.use("/api", router("/schedules", schedulesRoute()));
 app.use("/api", router("/cases", casesRoute()));
+
 export default app;

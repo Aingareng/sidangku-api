@@ -7,6 +7,7 @@ export class UserModel extends Model {
   public name!: string;
   public email!: string;
   public password!: string;
+  public phone!: string;
 
   // timestamps
   public readonly createdAt!: Date;

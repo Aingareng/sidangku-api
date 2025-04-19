@@ -39,7 +39,7 @@ class SchedulesController implements ISchedulesController {
   }
   async get(params: QueryParams<SehceduleQueryParams>): Promise<IApiResponse> {
     try {
-      const { search } = params;
+      const { search, select } = params;
       let whereConditions: string[] = [];
       let replacements: any = {};
 
@@ -47,6 +47,11 @@ class SchedulesController implements ISchedulesController {
       if (search) {
         whereConditions.push(`(c.case_number LIKE :searchTerm)`);
         replacements.searchTerm = `%${search}%`;
+      }
+
+      if (select) {
+        whereConditions.push(`(c.case_type = :select)`);
+        replacements.select = params.select;
       }
 
       const whereClause =
@@ -64,11 +69,12 @@ class SchedulesController implements ISchedulesController {
         s.status,
         c.case_number,
         c.status as case_status,
-        c.case_detail as agenda,
+        c.case_detail as case_details,
+        c.case_type,
 
         -- Ambil daftar hakim (role_id = 1)
         (
-          SELECT JSON_ARRAYAGG(u.name)
+          SELECT JSON_ARRAYAGG(JSON_OBJECT('id', u.id, 'name', u.name))
           FROM case_parties cp
           JOIN users u ON u.id = cp.user_id
           WHERE cp.case_id = s.case_id AND cp.role_id = 1
@@ -76,7 +82,7 @@ class SchedulesController implements ISchedulesController {
 
         -- Ambil daftar penggugat (role_id = 6)
         (
-          SELECT JSON_ARRAYAGG(u.name)
+          SELECT JSON_ARRAYAGG(JSON_OBJECT('id', u.id, 'name', u.name))
           FROM case_parties cp
           JOIN users u ON u.id = cp.user_id
           WHERE cp.case_id = s.case_id AND cp.role_id = 6
@@ -84,15 +90,23 @@ class SchedulesController implements ISchedulesController {
 
         -- Ambil daftar tergugat (role_id = 7)
         (
-          SELECT JSON_ARRAYAGG(u.name)
+          SELECT JSON_ARRAYAGG(JSON_OBJECT('id', u.id, 'name', u.name))
           FROM case_parties cp
           JOIN users u ON u.id = cp.user_id
           WHERE cp.case_id = s.case_id AND cp.role_id = 7
         ) as defendants,
 
+        -- Ambil daftar tergugat (role_id = 10)
+        (
+          SELECT JSON_ARRAYAGG(JSON_OBJECT('id', u.id, 'name', u.name))
+          FROM case_parties cp
+          JOIN users u ON u.id = cp.user_id
+          WHERE cp.case_id = s.case_id AND cp.role_id = 10
+        ) as preacheds,
+
         -- Ambil panitera (role_id = 2)
         (
-          SELECT u.name
+          SELECT JSON_OBJECT('id', u.id, 'name', u.name)
           FROM case_parties cp
           JOIN users u ON u.id = cp.user_id
           WHERE cp.case_id = s.case_id AND cp.role_id = 2
@@ -118,7 +132,7 @@ class SchedulesController implements ISchedulesController {
     } catch (error) {
       return {
         status: 500,
-        message: "Internal server error",
+        message: String(error),
         data: null,
       };
     }

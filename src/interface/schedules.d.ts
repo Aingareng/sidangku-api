@@ -17,6 +17,7 @@ export interface ISchedulesData {
 }
 
 interface SehceduleQueryParams {
+  select?: string;
   search?: string;
   id?: number;
 }
