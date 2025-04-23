@@ -12,7 +12,7 @@ module.exports = {
         allowNull: false,
         type: DataTypes.INTEGER,
         references: {
-          model: "roles",
+          model: "RoleModel",
           key: "id",
         },
       },
