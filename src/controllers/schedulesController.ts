@@ -116,7 +116,7 @@ class SchedulesController implements ISchedulesController {
         SELECT JSON_OBJECT('id', u.id, 'name', u.name)
         FROM case_parties cp
         JOIN users u ON u.id = cp.user_id
-        WHERE cp.case_id = s.case_id AND cp.role_id = 2
+        WHERE cp.case_id = s.case_id AND cp.role_id = 3
         LIMIT 1
       ) as registrar
 
