@@ -43,7 +43,6 @@ class SchedulesController implements ISchedulesController {
       let whereConditions: string[] = [];
       let replacements: any = {};
 
-      // Kondisi search
       if (search) {
         whereConditions.push(`(c.case_number LIKE :searchTerm)`);
         replacements.searchTerm = `%${search}%`;
@@ -60,63 +59,71 @@ class SchedulesController implements ISchedulesController {
           : "";
 
       const baseQuery = `
-      SELECT
-        s.id,
-        s.scheduled_date,
-        s.scheduled_time,
-        s.location,
-        s.queue_number,
-        s.status,
-        c.case_number,
-        c.status as case_status,
-        c.case_detail as case_details,
-        c.case_type,
+    SELECT
+      s.id,
+      s.scheduled_date,
+      s.scheduled_time,
+      s.location,
+      s.queue_number,
+      s.status,
+      c.case_number,
+      c.status as case_status,
+      c.case_detail as case_details,
+      c.case_type,
 
-        -- Ambil daftar hakim (role_id = 1)
-        (
-          SELECT JSON_ARRAYAGG(JSON_OBJECT('id', u.id, 'name', u.name))
-          FROM case_parties cp
-          JOIN users u ON u.id = cp.user_id
-          WHERE cp.case_id = s.case_id AND cp.role_id = 1
-        ) as judges,
+      -- Daftar hakim
+      (
+        SELECT CONCAT('[', GROUP_CONCAT(
+          JSON_OBJECT('id', u.id, 'name', u.name)
+        ), ']')
+        FROM case_parties cp
+        JOIN users u ON u.id = cp.user_id
+        WHERE cp.case_id = s.case_id AND cp.role_id = 1
+      ) as judges,
 
-        -- Ambil daftar penggugat (role_id = 6)
-        (
-          SELECT JSON_ARRAYAGG(JSON_OBJECT('id', u.id, 'name', u.name))
-          FROM case_parties cp
-          JOIN users u ON u.id = cp.user_id
-          WHERE cp.case_id = s.case_id AND cp.role_id = 6
-        ) as plaintiffs,
+      -- Daftar penggugat
+      (
+        SELECT CONCAT('[', GROUP_CONCAT(
+          JSON_OBJECT('id', u.id, 'name', u.name)
+        ), ']')
+        FROM case_parties cp
+        JOIN users u ON u.id = cp.user_id
+        WHERE cp.case_id = s.case_id AND cp.role_id = 6
+      ) as plaintiffs,
 
-        -- Ambil daftar tergugat (role_id = 7)
-        (
-          SELECT JSON_ARRAYAGG(JSON_OBJECT('id', u.id, 'name', u.name))
-          FROM case_parties cp
-          JOIN users u ON u.id = cp.user_id
-          WHERE cp.case_id = s.case_id AND cp.role_id = 7
-        ) as defendants,
+      -- Daftar tergugat
+      (
+        SELECT CONCAT('[', GROUP_CONCAT(
+          JSON_OBJECT('id', u.id, 'name', u.name)
+        ), ']')
+        FROM case_parties cp
+        JOIN users u ON u.id = cp.user_id
+        WHERE cp.case_id = s.case_id AND cp.role_id = 7
+      ) as defendants,
 
-        -- Ambil daftar tergugat (role_id = 10)
-        (
-          SELECT JSON_ARRAYAGG(JSON_OBJECT('id', u.id, 'name', u.name))
-          FROM case_parties cp
-          JOIN users u ON u.id = cp.user_id
-          WHERE cp.case_id = s.case_id AND cp.role_id = 10
-        ) as preacheds,
+      -- Daftar preacheds
+      (
+        SELECT CONCAT('[', GROUP_CONCAT(
+          JSON_OBJECT('id', u.id, 'name', u.name)
+        ), ']')
+        FROM case_parties cp
+        JOIN users u ON u.id = cp.user_id
+        WHERE cp.case_id = s.case_id AND cp.role_id = 10
+      ) as preacheds,
 
-        -- Ambil panitera (role_id = 2)
-        (
-          SELECT JSON_OBJECT('id', u.id, 'name', u.name)
-          FROM case_parties cp
-          JOIN users u ON u.id = cp.user_id
-          WHERE cp.case_id = s.case_id AND cp.role_id = 2
-          LIMIT 1
-        ) as registrar
+      -- Panitera
+      (
+        SELECT JSON_OBJECT('id', u.id, 'name', u.name)
+        FROM case_parties cp
+        JOIN users u ON u.id = cp.user_id
+        WHERE cp.case_id = s.case_id AND cp.role_id = 2
+        LIMIT 1
+      ) as registrar
 
-      FROM schedules s
-      JOIN cases c ON c.id = s.case_id
-      ${whereClause}
-      ORDER BY s.scheduled_date;
+    FROM schedules s
+    JOIN cases c ON c.id = s.case_id
+    ${whereClause}
+    ORDER BY s.scheduled_date;
     `;
 
       const result = await ScheduleModel.sequelize?.query(baseQuery, {
@@ -124,10 +131,19 @@ class SchedulesController implements ISchedulesController {
         type: QueryTypes.SELECT,
       });
 
+      // Setelah dapat hasil, parse field array supaya bener-bener jadi array JS
+      const parsedResult = result?.map((row: any) => ({
+        ...row,
+        judges: row.judges ? JSON.parse(row.judges) : [],
+        plaintiffs: row.plaintiffs ? JSON.parse(row.plaintiffs) : [],
+        defendants: row.defendants ? JSON.parse(row.defendants) : [],
+        preacheds: row.preacheds ? JSON.parse(row.preacheds) : [],
+      }));
+
       return {
         status: 200,
         message: "success",
-        data: result,
+        data: parsedResult,
       };
     } catch (error) {
       return {
@@ -137,6 +153,107 @@ class SchedulesController implements ISchedulesController {
       };
     }
   }
+
+  // async get(params: QueryParams<SehceduleQueryParams>): Promise<IApiResponse> {
+  //   try {
+  //     const { search, select } = params;
+  //     let whereConditions: string[] = [];
+  //     let replacements: any = {};
+
+  //     // Kondisi search
+  //     if (search) {
+  //       whereConditions.push(`(c.case_number LIKE :searchTerm)`);
+  //       replacements.searchTerm = `%${search}%`;
+  //     }
+
+  //     if (select) {
+  //       whereConditions.push(`(c.case_type = :select)`);
+  //       replacements.select = params.select;
+  //     }
+
+  //     const whereClause =
+  //       whereConditions.length > 0
+  //         ? `WHERE ${whereConditions.join(" AND ")}`
+  //         : "";
+
+  //     const baseQuery = `
+  //     SELECT
+  //       s.id,
+  //       s.scheduled_date,
+  //       s.scheduled_time,
+  //       s.location,
+  //       s.queue_number,
+  //       s.status,
+  //       c.case_number,
+  //       c.status as case_status,
+  //       c.case_detail as case_details,
+  //       c.case_type,
+
+  //       -- Ambil daftar hakim (role_id = 1)
+  //       (
+  //         SELECT JSON_ARRAYAGG(JSON_OBJECT('id', u.id, 'name', u.name))
+  //         FROM case_parties cp
+  //         JOIN users u ON u.id = cp.user_id
+  //         WHERE cp.case_id = s.case_id AND cp.role_id = 1
+  //       ) as judges,
+
+  //       -- Ambil daftar penggugat (role_id = 6)
+  //       (
+  //         SELECT JSON_ARRAYAGG(JSON_OBJECT('id', u.id, 'name', u.name))
+  //         FROM case_parties cp
+  //         JOIN users u ON u.id = cp.user_id
+  //         WHERE cp.case_id = s.case_id AND cp.role_id = 6
+  //       ) as plaintiffs,
+
+  //       -- Ambil daftar tergugat (role_id = 7)
+  //       (
+  //         SELECT JSON_ARRAYAGG(JSON_OBJECT('id', u.id, 'name', u.name))
+  //         FROM case_parties cp
+  //         JOIN users u ON u.id = cp.user_id
+  //         WHERE cp.case_id = s.case_id AND cp.role_id = 7
+  //       ) as defendants,
+
+  //       -- Ambil daftar tergugat (role_id = 10)
+  //       (
+  //         SELECT JSON_ARRAYAGG(JSON_OBJECT('id', u.id, 'name', u.name))
+  //         FROM case_parties cp
+  //         JOIN users u ON u.id = cp.user_id
+  //         WHERE cp.case_id = s.case_id AND cp.role_id = 10
+  //       ) as preacheds,
+
+  //       -- Ambil panitera (role_id = 2)
+  //       (
+  //         SELECT JSON_OBJECT('id', u.id, 'name', u.name)
+  //         FROM case_parties cp
+  //         JOIN users u ON u.id = cp.user_id
+  //         WHERE cp.case_id = s.case_id AND cp.role_id = 2
+  //         LIMIT 1
+  //       ) as registrar
+
+  //     FROM schedules s
+  //     JOIN cases c ON c.id = s.case_id
+  //     ${whereClause}
+  //     ORDER BY s.scheduled_date;
+  //   `;
+
+  //     const result = await ScheduleModel.sequelize?.query(baseQuery, {
+  //       replacements,
+  //       type: QueryTypes.SELECT,
+  //     });
+
+  //     return {
+  //       status: 200,
+  //       message: "success",
+  //       data: result,
+  //     };
+  //   } catch (error) {
+  //     return {
+  //       status: 500,
+  //       message: String(error),
+  //       data: null,
+  //     };
+  //   }
+  // }
   async delete(id: string): Promise<IApiResponse> {
     try {
       const result = await DestroySchedulesService.call(id);
