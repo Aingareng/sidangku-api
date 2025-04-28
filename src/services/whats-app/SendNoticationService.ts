@@ -1,13 +1,31 @@
 import { IApiResponse } from "../../interface/apiResponse";
 import { HttpStatusCode } from "../../types/httpCode";
+import dotenv from "dotenv";
 
-const CALLMEBOT_API_URL = "https://api.callmebot.com/whatsapp.php";
-const API_KEY = "1958309";
-const phone = "6282260279005";
+dotenv.config();
+
+const CALLMEBOT_API_URL = process.env.CALLMEBOT_API_URL;
+const API_KEY = process.env.API_KEY;
+const phone = process.env.ADMIN_PHONE;
 const defaultMessage = `Ini pesan dari admin`;
 
 async function SendNoticationService(message?: string): Promise<IApiResponse> {
   try {
+    if (API_KEY === undefined) {
+      return {
+        status: 500,
+        message: "API_KEY is not defined",
+        data: null,
+      };
+    }
+    if (phone === undefined) {
+      return {
+        status: 500,
+        message: "phone is not defined",
+        data: null,
+      };
+    }
+
     const notifcationMessage = message ? message : defaultMessage;
     const encodedMessage = encodeURIComponent(notifcationMessage);
     const url = `${CALLMEBOT_API_URL}?phone=${phone}&text=${encodedMessage}&apikey=${API_KEY}`;
