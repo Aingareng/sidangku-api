@@ -32,6 +32,7 @@ class loginController implements AuthController {
         status: 200,
         message: "success",
         data: {
+          name: existingUser.name,
           role: userRole?.name,
         },
       };

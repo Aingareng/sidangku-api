@@ -9,6 +9,10 @@ class CreateCasesService {
         error: string;
       };
 
+      console.log(
+        "🚀 ~ CreateCasesService ~ validateResult ~ validateResult:",
+        validateResult
+      );
       if (validateResult.error.length > 0) {
         return {
           status: 400,
@@ -28,7 +32,7 @@ class CreateCasesService {
       if (!CreateCaseResult) {
         return {
           status: 400,
-          message: "failed to create case",
+          message: "Gagal membuat perkara",
           data: null,
         };
       }
@@ -54,11 +58,11 @@ class CreateCasesService {
     let error = "";
 
     if (payload.case_number.length === 0) {
-      error = "Case number is required";
+      error = "Nomor perkara tidak boleh kosong";
     }
 
     if (existingCase) {
-      error = "Case number already exists";
+      error = "Nomor perkara sudah terdaftar";
     }
 
     return { error };

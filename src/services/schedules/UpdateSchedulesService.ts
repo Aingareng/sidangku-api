@@ -12,7 +12,6 @@ import {
 
 class UpdateSchedulesService {
   static async call(id: string, data: ISchedulesPayload) {
-    console.log("🚀 ~ UpdateSchedulesService ~ call ~ data:", data);
     const transaction = await sequelize.transaction();
 
     try {
@@ -23,6 +22,19 @@ class UpdateSchedulesService {
         return {
           status: 404,
           message: "Schedule not found",
+          data: null,
+        };
+      }
+
+      const queueExisting = await ScheduleModel.findOne({
+        where: { queue_number: data.queue_number },
+      });
+
+      if (queueExisting && schedule.id !== queueExisting.id) {
+        transaction.rollback();
+        return {
+          status: 400,
+          message: "Nomor antrian tidak boleh sama",
           data: null,
         };
       }

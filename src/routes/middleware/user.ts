@@ -11,19 +11,19 @@ const createUserSchema = Joi.object<IUserData>({
     "number.empty": "role_id tidak boleh kosong",
     "any.required": "role_id harus diisi",
   }),
-  email: Joi.string().email().required().messages({
+  email: Joi.string().email().optional().messages({
     "string.email": "Email tidak valid",
     "string.empty": "Email tidak boleh kosong",
     "any.required": "Email harus diisi",
   }),
-  password: Joi.string().min(6).required().messages({
+  password: Joi.string().min(6).optional().messages({
     "string.min": "Password minimal 6 karakter",
     "string.empty": "Password tidak boleh kosong",
     "any.required": "Password harus diisi",
   }),
   phone: Joi.string()
     .pattern(/^(?:\+62|62|0)8[1-9][0-9]{7,12}$/)
-    .required()
+    .optional()
     .messages({
       "string.empty": "Nomor telepon tidak boleh kosong",
       "any.required": "Nomor telepon harus diisi",
