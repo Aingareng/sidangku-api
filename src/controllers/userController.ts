@@ -11,6 +11,16 @@ import UpdateUsersService from "../services/users/UpdateUsersService";
 
 class userController implements IUserController {
   async create(payload: IUserData): Promise<IApiResponse> {
+    function removeUndefinedFields<T extends Record<string, any>>(obj: T): T {
+      const cleanedObj: any = {};
+      for (const key in obj) {
+        if (obj[key] !== undefined) {
+          cleanedObj[key] = obj[key];
+        }
+      }
+      return cleanedObj;
+    }
+
     try {
       const data: IUserData = {
         ...payload,
@@ -18,7 +28,7 @@ class userController implements IUserController {
       };
 
       const existingUser = await UserModel.findOne({
-        where: { email: payload.email },
+        where: { email: payload.email ?? "" },
       });
       if (existingUser) {
         return {
@@ -51,7 +61,7 @@ class userController implements IUserController {
     } catch (error) {
       return {
         status: 500,
-        message: "Internal server error",
+        message: String(error),
         data: error as SequelizeValidationError,
       };
     }

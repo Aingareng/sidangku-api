@@ -4,6 +4,9 @@ import SchedulesController from "../../controllers/schedulesController";
 import { ISchedulesPayload } from "../../interface/sequelizeValidationError";
 import SendNoticationService from "../../services/whats-app/SendNoticationService";
 import { HttpStatusCode } from "../../types/httpCode";
+import setReplacementClerkController, {
+  IReplacementClerkPayload,
+} from "../../controllers/setReplacementClerkController";
 
 const schedulesRoute = () => {
   const router: Router = Router();
@@ -50,6 +53,17 @@ const schedulesRoute = () => {
     try {
       const result = await SendNoticationService();
       res.status(result.status as HttpStatusCode).json(result);
+    } catch (error) {
+      res.status(500).json(error as Record<string, any>);
+    }
+  });
+
+  router.post("/set-cleck", async (req: Request, res: Response) => {
+    try {
+      const result = await setReplacementClerkController.call(
+        req.body as IReplacementClerkPayload
+      );
+      res.status(result.status as number).json(result);
     } catch (error) {
       res.status(500).json(error as Record<string, any>);
     }

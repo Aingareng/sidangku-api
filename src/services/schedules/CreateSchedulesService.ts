@@ -6,7 +6,6 @@ import {
 } from "../../utils/formatDate";
 import CasePartiesService from "../case-parties/CasePartiesService";
 import CreateCasesService from "../cases/CreateCasesService";
-import CreateUserService from "../users/CreateUsersService";
 import FindUserService from "../users/FindUserService";
 import SendNoticationService from "../whats-app/SendNoticationService";
 
