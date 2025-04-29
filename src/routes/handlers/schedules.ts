@@ -7,6 +7,8 @@ import { HttpStatusCode } from "../../types/httpCode";
 import setReplacementClerkController, {
   IReplacementClerkPayload,
 } from "../../controllers/setReplacementClerkController";
+import notificationController from "../../controllers/notificationController";
+import { INotificationPayload } from "../../interface/notification";
 
 const schedulesRoute = () => {
   const router: Router = Router();
@@ -51,7 +53,9 @@ const schedulesRoute = () => {
 
   router.post("/send-notification", async (req: Request, res: Response) => {
     try {
-      const result = await SendNoticationService();
+      const result = await notificationController.call(
+        req.body as INotificationPayload
+      );
       res.status(result.status as HttpStatusCode).json(result);
     } catch (error) {
       res.status(500).json(error as Record<string, any>);

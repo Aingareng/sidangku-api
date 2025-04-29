@@ -1,5 +1,5 @@
 import { ISchedulesPayload } from "../../interface/sequelizeValidationError";
-import { ScheduleModel, sequelize } from "../../models";
+import { ScheduleModel, sequelize, UserModel } from "../../models";
 import {
   formatJamIndonesia,
   formatTanggalIndonesia,
@@ -13,6 +13,8 @@ class CreateSchedulesService {
   static async create(payload: ISchedulesPayload) {
     const transaction = await sequelize.transaction();
     try {
+      const findMainClerck = await UserModel.findOne({ where: { role_id: 2 } });
+
       const caseService = await CreateCasesService.create(
         {
           case_number: payload.case_number,
@@ -58,27 +60,15 @@ class CreateSchedulesService {
       await processParties(payload.plaintiffs || [], "Plaintiff");
       await processParties(payload.defendants || [], "Defendant");
       await processParties(payload.preacheds || [], "preacheds");
-      await processParties([payload.registrar], "registrar");
 
       const schedule = await ScheduleModel.create(
         {
           case_id: caseId,
-          status: "scheduled",
           scheduled_date: new Date(),
           scheduled_time: new Date(),
         },
         { transaction }
       );
-
-      const judges = await FindUserService.findAll(payload.judges);
-      const plaintiffs = await FindUserService.findAll(
-        payload.plaintiffs || []
-      );
-      const defendants = await FindUserService.findAll(
-        payload.defendants || []
-      );
-      const preacheds = await FindUserService.findAll(payload.preacheds || []);
-      const clerks = await FindUserService.findAll([payload.registrar]);
 
       await transaction.commit();
 
@@ -86,56 +76,20 @@ class CreateSchedulesService {
         `
 📢 *Jadwal Sidang Baru*
 
-🆔 *Perkara*: ${payload.case_number}
+*Panitera*:
+${findMainClerck?.name ?? ""} (📞 https://wa.me/${findMainClerck?.phone})
 
-👨‍⚖️ *Hakim*: 
-${judges.data
-  ?.map(
-    (judge, idx) =>
-      `${idx + 1}. ${judge.name} (📞 https://wa.me/${judge.phone})`
-  )
-  .join("\n")}
+🆔 Perkara: ${payload.case_number}
+📅 Tanggal: ${formatTanggalIndonesia(schedule.createdAt.toString())}
+⏰ Jam: ${formatJamIndonesia(schedule.scheduled_time.toString())}
 
-🧑‍💼 *Panitera*: 
-${clerks.data
-  ?.map(
-    (clerk, idx) =>
-      `${idx + 1}. ${clerk.name} (📞 https://wa.me/${clerk.phone})`
-  )
-  .join("\n")}
+Mohon tetapkan 🧑‍💼 *Panitera Pengganti*.
 
-${
-  payload.case_type === "perdata"
-    ? `
-👥 *Penggugat*: 
-${plaintiffs.data
-  ?.map((p, idx) => `${idx + 1}. ${p.name} (📞 https://wa.me/${p.phone})`)
-  .join("\n")}
+🔗 Dashboard: 
+👉 http://localhost:5173/
 
-👥 *Tergugat*: 
-${defendants.data
-  ?.map((d, idx) => `${idx + 1}. ${d.name} (📞 https://wa.me/${d.phone})`)
-  .join("\n")}
-    `
-    : `
-👥 *Terdakwa*:
-${preacheds.data?.map((p, idx) => `${idx + 1}. ${p.name}`).join("\n")}
-    `
-}
+_PTSP PN Limboto_
 
-📅 *Tanggal*: ${formatTanggalIndonesia(schedule.createdAt.toString())}
-⏰ *Jam*: ${formatJamIndonesia(schedule.scheduled_time.toString())}
-
-📝 *Tindakan:*
-Silakan tentukan 🏛️ ruang & 🔢 antrian sidang.
-
-🔗 *Dashboard*: 
-👉 http://192.168.1.5/
-
-_Terima kasih atas kerjasama Bapak/Ibu._
-
-Salam hormat,  
-*PTSP PN Limboto*
   `
       );
 

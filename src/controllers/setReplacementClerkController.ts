@@ -54,7 +54,10 @@ class setReplacementClerkController {
         where: { user_id: payload.user_id },
       });
 
-      if (existingCaseParties) {
+      if (
+        existingCaseParties &&
+        existingCaseParties.case_id === existingSchedule.case_id
+      ) {
         transaction.rollback();
         return {
           status: 400,

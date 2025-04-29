@@ -68,7 +68,7 @@ class UpdateSchedulesService {
       await processParties(data.plaintiffs || [], "Plaintiff");
       await processParties(data.defendants || [], "Defendant");
       await processParties(data.preacheds || [], "preacheds");
-      await processParties([data.registrar], "registrar");
+      // await processParties([data.registrar], "registrar");
 
       const scheduleUpdateResult = await ScheduleModel.update(data, {
         where: {
@@ -106,12 +106,9 @@ class UpdateSchedulesService {
       const judges = await FindUserService.findAll(data.judges);
       const plaintiffs = await FindUserService.findAll(data.plaintiffs || []);
       const defendants = await FindUserService.findAll(data.defendants || []);
-      const clercks = await FindUserService.findAll([data.registrar]);
       const preacheds = await FindUserService.findAll(data.preacheds || []);
 
       await transaction.commit();
-
-      console.log(schedule);
 
       await SendNoticationService(
         `
@@ -123,13 +120,6 @@ ${judges.data
   ?.map(
     (judge, idx) =>
       `${idx + 1}. ${judge.name} (📞 https://wa.me/${judge.phone})`
-  )
-  .join("\n")}
-🧑‍💼 *Panitera*: 
-${clercks.data
-  ?.map(
-    (clerck, idx) =>
-      `${idx + 1}. ${clerck.name} (📞 https://wa.me/${clerck.phone})`
   )
   .join("\n")}
 

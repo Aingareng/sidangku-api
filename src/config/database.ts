@@ -16,4 +16,8 @@ export const sequelize = new Sequelize(dbName, dbUser, dbPass, {
   host: dbHost,
   port: dbPort,
   dialect: dbDialect,
+  timezone: "+08:00",
+  dialectOptions: {
+    timezone: "local",
+  },
 });

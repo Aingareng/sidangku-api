@@ -70,6 +70,7 @@ class SchedulesController implements ISchedulesController {
       c.status as case_status,
       c.case_detail as case_details,
       c.case_type,
+      c.status,
 
       -- Daftar hakim
       (

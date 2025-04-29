@@ -17,7 +17,7 @@ interface ValidationErrorDetail {
 
 interface ISchedulesPayload {
   case_number: string;
-  registrar: number;
+  // registrar: number;
   case_detail: string[];
   judges: number[];
   plaintiffs?: number[];
