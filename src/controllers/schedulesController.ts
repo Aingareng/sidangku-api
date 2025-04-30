@@ -139,6 +139,10 @@ class SchedulesController implements ISchedulesController {
         plaintiffs: row.plaintiffs ? JSON.parse(row.plaintiffs) : [],
         defendants: row.defendants ? JSON.parse(row.defendants) : [],
         preacheds: row.preacheds ? JSON.parse(row.preacheds) : [],
+        registrar:
+          typeof row.registrar === "string"
+            ? JSON.parse(row.registrar)
+            : row.registrar,
       }));
 
       return {
