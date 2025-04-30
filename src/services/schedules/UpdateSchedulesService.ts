@@ -107,6 +107,10 @@ class UpdateSchedulesService {
       const plaintiffs = await FindUserService.findAll(data.plaintiffs || []);
       const defendants = await FindUserService.findAll(data.defendants || []);
       const preacheds = await FindUserService.findAll(data.preacheds || []);
+      const clercks = await FindUserService.findByPk(data.registrar as number);
+      console.log("🚀 ~ UpdateSchedulesService ~ call ~ clercks:", clercks);
+      const clerck =
+        clercks.status === 200 ? clercks.data : { name: "", phone: "" };
 
       await transaction.commit();
 
@@ -122,6 +126,9 @@ ${judges.data
       `${idx + 1}. ${judge.name} (📞 https://wa.me/${judge.phone})`
   )
   .join("\n")}
+
+🧑‍💼 *Panitera Pengganti*: 
+${clerck?.name} (📞 https://wa.me/${clerck?.phone})
 
 ${
   data.case_type === "perdata"
