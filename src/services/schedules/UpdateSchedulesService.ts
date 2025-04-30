@@ -108,7 +108,6 @@ class UpdateSchedulesService {
       const defendants = await FindUserService.findAll(data.defendants || []);
       const preacheds = await FindUserService.findAll(data.preacheds || []);
       const clercks = await FindUserService.findByPk(data.registrar as number);
-      console.log("🚀 ~ UpdateSchedulesService ~ call ~ clercks:", clercks);
       const clerck =
         clercks.status === 200 ? clercks.data : { name: "", phone: "" };
 
